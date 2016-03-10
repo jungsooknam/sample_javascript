@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+
+    #canvas {
+        background: #ffffff;
+        cursor: pointer;
+        margin-left: 10px;
+        margin-top: 10px;
+        -webkit-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+        -moz-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+        box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+    }
+    </style>
+</head>
+<body>
+Wellcome to jsWorld!
+
+<div id='controls'>
+    <h3>A</h3>
+    Line color: <select id='Line1StyleSelect'>
+    <option value='red'>red</option>
+    <option value='green'>green</option>
+    <option value='blue'>blue</option>
+    <option value='orange'>orange</option>
+    <option value='cornflowerblue' selected>cornflowerblue</option>
+    <option value='goldenrod'>goldenrod</option>
+    <option value='navy'>navy</option>
+    <option value='purple'>purple</option>
+    </select>
+
+    X: <select id='x1Select'>
+    <option value=4 select>4</option>
+    <option value=6>6</option>
+    <option value=8>8</option>
+    <option value=10>10</option>
+    <option value=12>12</option>
+    <option value=20>20</option>
+    </select>
+
+    Y: <select id='y1Select'>
+    <option value=6 select>6</option>
+    <option value=6>6</option>
+    <option value=8>8</option>
+    <option value=10>10</option>
+    <option value=12>12</option>
+    <option value=20>20</option>
+    </select>
+
+
+    SCALE: <select id='scaleSelect'>
+    <option value=2 select>2</option>
+    <option value=3>3</option>
+    <option value=4>4</option>
+    <option value=5>5</option>
+    <option value=6>6</option>
+
+    </select>
+    <input id='scaleResultButton' type='button' value='Scale Result'/>
+    <input id='normalizeResultButton' type='button' value='Length Result'/>
+    <input id='perpResultButton' type='button' value='Perp Result'/>
+
+    <h3>B</h3>
+    Line color: <select id='Line2StyleSelect'>
+    <option value='red'>red</option>
+    <option value='green' selected>green</option>
+    <option value='blue'>blue</option>
+    <option value='orange'>orange</option>
+    <option value='cornflowerblue'>cornflowerblue</option>
+    <option value='goldenrod'>goldenrod</option>
+    <option value='navy'>navy</option>
+    <option value='purple'>purple</option>
+    </select>
+
+    X: <select id='x2Select'>
+    <option value=4 >4</option>
+    <option value=6>6</option>
+    <option value=8>8</option>
+    <option value=10 select>10</option>
+    <option value=12>12</option>
+    <option value=20>20</option>
+    </select>
+
+    Y: <select id='y2Select'>
+    <option value=4 >4</option>
+    <option value=6>6</option>
+    <option value=8 select>8</option>
+    <option value=10>10</option>
+    <option value=12>12</option>
+    <option value=20>20</option>
+    </select>
+
+    <p>
+    <input id='addResultButton' type='button' value='Add Result'/>
+    <input id='subResultButton' type='button' value='Sub Result'/>
+    <input id='dotResultButton' type='button' value='Dot Result'/>
+    <p>
+</div>
+
+<canvas id='canvas' width='600' height='600'>
+    Canvas not supported
+</canvas>
+<script>
+    function Vector2d(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    Vector2d.prototype = {
+        add : function (vec) {
+            return new Vector2d(this.x + vec.x, this.y + vec.y);
+        },
+
+        sub : function (vec) {
+            return new Vector2d(this.x - vec.x, this.y - vec.y);
+        },
+
+        scale : function (scale) {
+            return new Vector2d(this.x * scale, this.y * scale);
+        },
+
+        length : function () {
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        },
+
+        normalize : function () {
+            var len = this.length();
+
+            return new Vector2d(this.x / len, this.y / len);
+        },
+
+        perp : function (cw) {
+            if(cw)
+                return new Vector2d(-this.y , this.x);
+            else return new Vector2d( this.y, -this.x);
+        },
+
+        dot : function (vec) {
+            return this.x * vec.x + this.y * vec.y;
+        }
+    };
+
+    function drawGrid(color, stepx, stepy) {
+        context.save()
+
+        context.strokeStyle = color;
+        context.fillStyle = '#ffffff';
+        context.lineWidth = 0.5;
+        context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+
+        for (var i = stepx + 0.5; i < context.canvas.width; i += stepx) {
+            context.beginPath();
+            context.moveTo(i, 0);
+            context.lineTo(i, context.canvas.height);
+            context.stroke();
+        }
+
+        for (var i = stepy + 0.5; i < context.canvas.height; i += stepy) {
+            context.beginPath();
+            context.moveTo(0, i);
+            context.lineTo(context.canvas.width, i);
+            context.stroke();
+        }
+
+        context.strokeStyle = '#000000';
+        context.lineWidth = 2;
+
+        //var helfVal = context.canvas.width /2;
+        context.beginPath();
+        context.moveTo(0, helfVal);
+        context.lineTo(context.canvas.width, helfVal);
+        context.stroke();
+
+        context.beginPath();
+        context.moveTo(helfVal, 0);
+        context.lineTo(helfVal, context.canvas.height);
+        context.stroke();
+
+        context.restore();
+    }
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+
+    var style1Select = document.getElementById('Line1StyleSelect');
+    var x1Select = document.getElementById('x1Select')
+    var y1Select = document.getElementById('y1Select')
+
+    var style2Select = document.getElementById('Line2StyleSelect');
+    var x2Select = document.getElementById('x2Select')
+    var y2Select = document.getElementById('y2Select')
+
+    var addResultButton = document.getElementById('addResultButton');
+
+    var helfVal = context.canvas.width /2;
+
+    addResultButton.onclick = function (e) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid('lightgray', 10, 10);
+        drawAddLine();
+    };
+
+    function Point(x, y) {
+        console.log(x, y);
+        this.x = (x * GAP) + helfVal;
+        this.y = (y * -GAP) + helfVal;
+        console.log(this);
+    }
+    var GAP = 10;
+
+    function drawAddLine(){
+        context.save();
+
+        context.strokeStyle = style1Select.value;
+        context.lineWidth = 3;
+        context.beginPath();
+        var p;
+        p = new Point(0,0);
+        context.moveTo(p.x, p.y);
+
+
+        p = new Point(x1Select.value,y1Select.value);
+        context.lineTo(p.x, p.y);
+        context.stroke();
+
+        context.strokeStyle = style2Select.value;
+
+        context.beginPath();
+
+        context.lineTo(p.x, p.y);
+        console.log(style2Select.value);
+        var xx = Number(x1Select.value) + Number(x2Select.value);
+        var yy = Number(y1Select.value) + Number(y2Select.value);
+
+        p = new Point(xx, yy);
+
+        context.lineTo(p.x, p.y);
+        context.stroke();
+        context.fillStyle ="gray"
+        context.fillRect(0,0,120,20);
+
+        context.font = "18px Palatino";
+        context.fillStyle = "yellow";
+        context.lineWidth = 1.0;
+
+        context.fillText("x : "+xx+ "   y : "+yy , 0,16);
+
+        context.restore();
+    }
+
+    function drawLine(sx, sy, ex, ey, style)
+    {
+        context.strokeStyle = style;
+        context.lineWidth = 2;
+        context.beginPath();
+        context.lineTo(sx, sy);
+        console.log(style2Select.value);
+        var xx = Number(x1Select.value) + Number(x2Select.value);
+        var yy = Number(y1Select.value) + Number(y2Select.value);
+    }
+    console.log("aaaa");
+
+    drawGrid('lightgray', 10, 10);
+
+
+</script>
+
+
+</body>
+</html>
