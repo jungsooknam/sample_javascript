@@ -104,43 +104,27 @@ Wellcome to jsWorld!
     Canvas not supported
 </canvas>
 <script>
-    function Vector2d(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-    Vector2d.prototype = {
-        add : function (vec) {
-            return new Vector2d(this.x + vec.x, this.y + vec.y);
-        },
 
-        sub : function (vec) {
-            return new Vector2d(this.x - vec.x, this.y - vec.y);
-        },
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
 
-        scale : function (scale) {
-            return new Vector2d(this.x * scale, this.y * scale);
-        },
+    var style1Select = document.getElementById('Line1StyleSelect');
+    var x1Select = document.getElementById('x1Select')
+    var y1Select = document.getElementById('y1Select')
 
-        length : function () {
-            return Math.sqrt(this.x * this.x + this.y * this.y);
-        },
+    var style2Select = document.getElementById('Line2StyleSelect');
+    var x2Select = document.getElementById('x2Select')
+    var y2Select = document.getElementById('y2Select')
 
-        normalize : function () {
-            var len = this.length();
+    var addResultButton = document.getElementById('addResultButton');
+    var subResultButton = document.getElementById('subResultButton');
+    var dotResultButton = document.getElementById('dotResultButton');
 
-            return new Vector2d(this.x / len, this.y / len);
-        },
 
-        perp : function (cw) {
-            if(cw)
-                return new Vector2d(-this.y , this.x);
-            else return new Vector2d( this.y, -this.x);
-        },
+    var helfVal = context.canvas.width /2;
 
-        dot : function (vec) {
-            return this.x * vec.x + this.y * vec.y;
-        }
-    };
+    var GAP = 10;
+
 
     function drawGrid(color, stepx, stepy) {
         context.save()
@@ -180,86 +164,132 @@ Wellcome to jsWorld!
 
         context.restore();
     }
-    var canvas = document.getElementById('canvas');
-    var context = canvas.getContext('2d');
 
-    var style1Select = document.getElementById('Line1StyleSelect');
-    var x1Select = document.getElementById('x1Select')
-    var y1Select = document.getElementById('y1Select')
+    function Vector2d(x, y) {
+        this.x = Number(x);
+        this.y = Number(y);
+    }
 
-    var style2Select = document.getElementById('Line2StyleSelect');
-    var x2Select = document.getElementById('x2Select')
-    var y2Select = document.getElementById('y2Select')
+    Vector2d.prototype = {
+        add : function (vec) {
+            return new Vector2d(this.x + vec.x, this.y + vec.y);
+        },
 
-    var addResultButton = document.getElementById('addResultButton');
+        sub : function (vec) {
+            return new Vector2d(this.x - vec.x, this.y - vec.y);
+        },
 
-    var helfVal = context.canvas.width /2;
+        scale : function (scale) {
+            return new Vector2d(this.x * scale, this.y * scale);
+        },
 
-    addResultButton.onclick = function (e) {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        drawGrid('lightgray', 10, 10);
-        drawAddLine();
+        length : function () {
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        },
+
+        normalize : function () {
+            var len = this.length();
+
+            return new Vector2d(this.x / len, this.y / len);
+        },
+
+        perp : function (cw) {
+            if(cw)
+                return new Vector2d(-this.y , this.x);
+            else return new Vector2d( this.y, -this.x);
+        },
+
+        dot : function (vec) {
+            return this.x * vec.x + this.y * vec.y;
+        }
     };
 
     function Point(x, y) {
-        console.log(x, y);
         this.x = (x * GAP) + helfVal;
         this.y = (y * -GAP) + helfVal;
-        console.log(this);
     }
-    var GAP = 10;
 
-    function drawAddLine(){
-        context.save();
+    function addVector(){
 
-        context.strokeStyle = style1Select.value;
-        context.lineWidth = 3;
-        context.beginPath();
-        var p;
-        p = new Point(0,0);
-        context.moveTo(p.x, p.y);
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var v2 = new Vector2d(x2Select.value, y2Select.value);
+        var addv = v1.add(v2);
+
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+        drawLine(new Point(v1.x,v1.y), new Point(addv.x,addv.y), style2Select.value)
+
+        var resultStr = "Vector2d x : "+addv.x+ "   y : "+addv.y
+        drawResult(resultStr)
+    }
+
+    function subVector(){
+
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var v2 = new Vector2d(x2Select.value, y2Select.value);
+        var addv = v1.sub(v2);
+
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+        drawLine(new Point(v1.x,v1.y), new Point(addv.x,addv.y), style2Select.value)
+
+        var resultStr = "Vector2d x : "+addv.x+ "   y : "+addv.y
+        drawResult(resultStr)
+    }
 
 
-        p = new Point(x1Select.value,y1Select.value);
-        context.lineTo(p.x, p.y);
-        context.stroke();
+    function drawResult(str)
+    {
+        context.fillStyle ="gray";
+        context.fillRect(0,0,300,20);
 
-        context.strokeStyle = style2Select.value;
-
-        context.beginPath();
-
-        context.lineTo(p.x, p.y);
-        console.log(style2Select.value);
-        var xx = Number(x1Select.value) + Number(x2Select.value);
-        var yy = Number(y1Select.value) + Number(y2Select.value);
-
-        p = new Point(xx, yy);
-
-        context.lineTo(p.x, p.y);
-        context.stroke();
-        context.fillStyle ="gray"
-        context.fillRect(0,0,120,20);
-
-        context.font = "18px Palatino";
+        context.font = "14px Palatino";
         context.fillStyle = "yellow";
         context.lineWidth = 1.0;
 
-        context.fillText("x : "+xx+ "   y : "+yy , 0,16);
+        context.fillText(str , 10,15);
+    }
+
+    function drawLine(sp, ep, style)
+    {
+        context.save();
+        context.beginPath();
+        context.strokeStyle = style;
+        context.lineWidth = 2;
+        context.moveTo(sp.x, sp.y);
+
+        //console.log(style2Select.value);
+        //var xx = Number(x1Select.value) + Number(x2Select.value);
+        //var yy = Number(y1Select.value) + Number(y2Select.value);
+
+        context.lineTo(ep.x, ep.y);
+        context.stroke();
 
         context.restore();
     }
 
-    function drawLine(sx, sy, ex, ey, style)
-    {
-        context.strokeStyle = style;
-        context.lineWidth = 2;
-        context.beginPath();
-        context.lineTo(sx, sy);
-        console.log(style2Select.value);
-        var xx = Number(x1Select.value) + Number(x2Select.value);
-        var yy = Number(y1Select.value) + Number(y2Select.value);
-    }
-    console.log("aaaa");
+    addResultButton.onclick = function (e) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid('lightgray', 10, 10);
+        addVector();
+    };
+
+    subResultButton.onclick = function (e) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid('lightgray', 10, 10);
+        subVector();
+    };
+
+    dotResultButton.onclick = function (e) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid('lightgray', 10, 10);
+        addVector();
+    };
+
+    console.log("bbb")
+
+
+
+
+
 
     drawGrid('lightgray', 10, 10);
 
