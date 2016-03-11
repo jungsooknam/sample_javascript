@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+    .slider {
+        width: 200px;
+    }
+    #controls{
+        width: 200px;
+        border: 1px solid red;
+        float:left;
+    }
+    .selectOption{
+        width:100px;
+    }
+
+    #canvas {
+        background: #ffffff;
+        cursor: pointer;
+        margin-left: 10px;
+        margin-top: 10px;
+        -webkit-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+        -moz-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+        box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+    };
+
+    </style>
+
+
+
+</head>
+<body>
+
+<div id='controls' onclick='onClickHandler();'>
+
+    <div id='vecterA'>
+        <select id='Line1StyleSelect' class="selectOption">
+        <option value='red'>빨강 라인</option>
+        <option value='green'>녹색 라인</option>
+        <option value='blue'>파란 라인</option>
+        <option value='orange'>오랜지 라인</option>
+        <option value='cornflowerblue' selected>하늘색 라인</option>
+        <option value='goldenrod'>진황색 라인</option>
+        <option value='navy'>남색 라인</option>
+        <option value='purple'>보라 라인</option>
+    </select>
+    <input class = "slider" type="range" id="x1Select" value="10" min="-30" max="30" data-show-value="true" onchange="vecterChange();">
+    <!--<label id="x1SelectVal">10</label>-->
+    <input class = "slider" type="range" id="y1Select" value="10" min="-30" max="30" data-show-value="true" onchange="vecterChange();">
+    <!--<label id="y1SelectVal">10</label>-->
+
+    <div id ="scaleSelectLayer" style="position: absolute; top:130px; visibility: hidden">
+    <select id='scaleSelect' class="selectOption">
+        <option value=2 selected>scale : 2</option>
+        <option value=3>scale : 3</option>
+        <option value=4>scale : 4</option>
+        <option value=5>scale : 5</option>
+        <option value=6>scale : 6</option>
+    </select>
+    </div>
+
+
+    </div>
+
+    <div id='vecterB'>
+
+        <select id='Line2StyleSelect' class="selectOption">
+            <option value='red'>빨강 라인</option>
+            <option value='green'>녹색 라인</option>
+            <option value='blue'>파란 라인</option>
+            <option value='orange' selected>오랜지 라인</option>
+            <option value='cornflowerblue'>하늘색 라인</option>
+            <option value='goldenrod'>진황색 라인</option>
+            <option value='navy'>남색 라인</option>
+            <option value='purple'>보라 라인</option>
+    </select>
+    <input type="range" id="x2Select" value="10" min="-30" max="30" data-show-value="true" onchange="vecterChange();">
+    <!--<label id="x2SelectVal">10</label>-->
+
+    <input type="range" id="y2Select" value="10" min="-30" max="30" data-show-value="true" onchange="vecterChange();">
+    <!--<label id="y2SelectVal">10</label>-->
+    </div>
+
+    <fieldset data-role="controlgroup">
+    <label for="add">Add</label>
+    <input type="radio" name="vecterOperation" id ="add" value="add" checked>
+
+    <label for="sub">Sub</label>
+    <input type="radio" name="vecterOperation" id ="sub" value="sub">
+
+    <label for="scale">Scale</label>
+    <input type="radio" name="vecterOperation" id ="scale" value="scale">
+
+    <label for="length">Length</label>
+    <input type="radio" name="vecterOperation" id ="length" value="length">
+
+    <label for="normailze">Normailze</label>
+    <input type="radio" name="vecterOperation" id ="normailze" value="normailze">
+
+    <label for="perp">Perp</label>
+    <input type="radio" name="vecterOperation" id ="perp" value="perp">
+
+    <label for="dot">Dot</label>
+    <input type="radio" name="vecterOperation" id ="dot" value="dot">
+    </fieldset>
+
+</div>
+
+<canvas id='canvas' width='600' height='600'>
+    Canvas not supported
+</canvas>
+
+<script>
+
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+
+    var style1Select = document.getElementById('Line1StyleSelect');
+    var x1Select = document.getElementById('x1Select');
+    var y1Select = document.getElementById('y1Select');
+    var scaleSelect = document.getElementById('scaleSelect');
+
+    var style2Select = document.getElementById('Line2StyleSelect');
+    var x2Select = document.getElementById('x2Select')
+    var y2Select = document.getElementById('y2Select');
+
+    var vecterOperations = document.getElementsByName('vecterOperation');
+
+    var scaleSelectLayer = document.getElementById('scaleSelectLayer');
+
+    var vecterB = document.getElementById('vecterB');
+
+    var helfVal = context.canvas.width /2;
+
+    var GAP = 10;
+
+
+
+    for (var i=0; i < vecterOperations.length;  i++) {
+        vecterOperations[i].onclick = function() {
+            //document.getElementById('display1').innerHTML += '<br />' + this.value  + ' clicked';
+            selectOper = this.value;
+            reSet();
+        }
+    }
+
+    var selectOper = "add";
+
+    function reSet(){
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid('lightgray', 10, 10);
+
+        switch (selectOper){
+            case "add":
+                vecterB.style.visibility = "visible";
+                scaleSelectLayer.style.visibility = "hidden";
+                addVector();
+                break;
+
+            case "sub":
+                vecterB.style.visibility = "visible";
+                scaleSelectLayer.style.visibility = "hidden";
+                subVector();
+                break;
+
+            case "scale":
+                vecterB.style.visibility = "hidden";
+                scaleSelectLayer.style.visibility = "visible";
+                scaleVector();
+                break;
+
+            case "length":
+                vecterB.style.visibility = "hidden";
+                scaleSelectLayer.style.visibility = "hidden";
+                lengthVal();
+                break;
+
+            case "normailze":
+
+                vecterB.style.visibility = "hidden";
+                scaleSelectLayer.style.visibility = "hidden";
+                normalizeVector();
+                break;
+
+            case "perp":
+                vecterB.style.visibility = "hidden";
+                scaleSelectLayer.style.visibility = "hidden";
+                perpVector();
+                break;
+
+            case "dot":
+                vecterB.style.visibility = "visible";
+                scaleSelectLayer.style.visibility = "hidden";
+                dotVal();
+                break;
+        }
+    }
+
+
+    scaleSelect.onchange = function(e){
+        reSet();
+    }
+
+
+    function drawGrid(color, stepx, stepy) {
+        context.save()
+
+        context.strokeStyle = color;
+        context.fillStyle = '#ffffff';
+        context.lineWidth = 0.5;
+        context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+
+        for (var i = stepx + 0.5; i < context.canvas.width; i += stepx) {
+            context.beginPath();
+            context.moveTo(i, 0);
+            context.lineTo(i, context.canvas.height);
+            context.stroke();
+        }
+
+        for (var i = stepy + 0.5; i < context.canvas.height; i += stepy) {
+            context.beginPath();
+            context.moveTo(0, i);
+            context.lineTo(context.canvas.width, i);
+            context.stroke();
+        }
+
+        context.strokeStyle = '#000000';
+        context.lineWidth = 2;
+
+        //var helfVal = context.canvas.width /2;
+        context.beginPath();
+        context.moveTo(0, helfVal);
+        context.lineTo(context.canvas.width, helfVal);
+        context.stroke();
+
+        context.beginPath();
+        context.moveTo(helfVal, 0);
+        context.lineTo(helfVal, context.canvas.height);
+        context.stroke();
+
+        context.restore();
+    }
+
+    function Vector2d(x, y) {
+        this.x = Number(x);
+        this.y = Number(y);
+    }
+
+    Vector2d.prototype = {
+        add : function (vec) {
+            return new Vector2d(this.x + vec.x, this.y + vec.y);
+        },
+
+        sub : function (vec) {
+            return new Vector2d(this.x - vec.x, this.y - vec.y);
+        },
+
+        scale : function (scale) {
+            return new Vector2d(this.x * scale, this.y * scale);
+        },
+
+        length : function () {
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        },
+
+        normalize : function () {
+            var len = this.length();
+
+            return new Vector2d(this.x / len, this.y / len);
+        },
+
+        perp : function (cw) {
+            if(cw)
+                return new Vector2d(-this.y , this.x);
+            else return new Vector2d( this.y, -this.x);
+        },
+
+        dot : function (vec) {
+            return this.x * vec.x + this.y * vec.y;
+        }
+    };
+
+    function Point(x, y) {
+        this.x = (x * GAP) + helfVal;
+        this.y = (y * -GAP) + helfVal;
+    }
+
+    function addVector(){
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var v2 = new Vector2d(x2Select.value, y2Select.value);
+        var addv = v1.add(v2);
+
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+        drawLine(new Point(v1.x,v1.y), new Point(addv.x,addv.y), style2Select.value)
+
+        var resultStr = "Vector2d x : "+addv.x+ "   y : "+addv.y
+        drawResult(resultStr)
+    }
+
+    function subVector(){
+
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var v2 = new Vector2d(x2Select.value, y2Select.value);
+        var subv = v1.sub(v2);
+
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+        drawLine(new Point(v1.x,v1.y), new Point(subv.x,subv.y), style2Select.value)
+
+        var resultStr = "Vector2d x : "+subv.x+ "   y : "+subv.y
+        drawResult(resultStr)
+    }
+
+    function scaleVector(){
+
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var scalev = v1.scale(scaleSelect.value);
+
+        drawLine(new Point(0,0), new Point(scalev.x,scalev.y), style2Select.value)
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+
+        var resultStr = "Vector2d x : "+scalev.x+ "   y : "+scalev.y
+        drawResult(resultStr)
+    }
+
+    function lengthVal(){
+
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var myLength = v1.length();
+
+
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+
+        var resultStr = "length Val  : "+myLength;
+        drawResult(resultStr)
+    }
+
+    function normalizeVector(){
+
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var normalizev = v1.normalize();
+
+
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+        drawLine(new Point(0,0), new Point(normalizev.x,normalizev.y), style2Select.value)
+
+        var resultStr = "Vector2d x : "+normalizev.x+ "   y : "+normalizev.y
+        drawResult(resultStr)
+    }
+
+    function perpVector(){
+
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var perpv = v1.perp();
+
+
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+        drawLine(new Point(0,0), new Point(perpv.x,perpv.y), style2Select.value)
+
+        var resultStr = "Vector2d x : "+perpv.x+ "   y : "+perpv.y
+        drawResult(resultStr)
+    }
+
+    function dotVal(){
+
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var v2 = new Vector2d(x2Select.value, y2Select.value);
+        var dotval = v1.dot(v2);
+
+
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+        drawLine(new Point(0,0), new Point(v2.x,v2.y), style2Select.value)
+
+
+        var resultStr = "Dot Val : "+dotval;
+        drawResult(resultStr)
+    }
+
+    function drawResult(str){
+        context.fillStyle ="gray";
+        context.fillRect(0,0,600,20);
+
+        context.font = "14px Palatino";
+        context.fillStyle = "yellow";
+        context.lineWidth = 1.0;
+
+        context.fillText(str , 10,15);
+    }
+
+    function drawLine(sp, ep, style){
+
+        context.save();
+        context.beginPath();
+        context.strokeStyle = style;
+        context.lineWidth = 5;
+        context.moveTo(sp.x, sp.y);
+        context.lineTo(ep.x, ep.y);
+        context.stroke();
+
+        context.restore();
+    }
+
+    //drawGrid('lightgray', 10, 10);
+    reSet();
+
+
+    $(document).ready(function(){
+
+        $("a").click(function(){
+            //$(this).hide();
+            console.log("aaa");
+            vecterChange();
+        });
+    });
+
+    function onClickHandler(e){
+        vecterChange();
+    }
+
+    function vecterChange(){
+
+        var len = document.links.length;
+        //console.log("len : ", len);
+        for (var i = 0 ; i<len ; i++){
+            //console.log(i, document.links[i], document.links[i].innerText);
+            //console.log(i, document.links[i].role == "slider");
+            //console.log(i, document.links[i].title);
+        }
+        x1Select.value =document.links[0].innerText;
+        y1Select.value =document.links[1].innerText;
+        x2Select.value =document.links[2].innerText;
+        y2Select.value =document.links[3].innerText;
+
+        reSet();
+    }
+
+
+</script>
+
+</body>
+</html>

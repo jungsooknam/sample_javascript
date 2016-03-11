@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
     <title>Title</title>
     <style>
@@ -15,12 +16,25 @@
         box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
     }
     </style>
+
+
+
+
+
 </head>
 <body>
 Wellcome to jsWorld!
 
+
+
+
 <div id='controls'>
-    <h3>A</h3>
+
+
+
+
+
+
     Line color: <select id='Line1StyleSelect'>
     <option value='red'>red</option>
     <option value='green'>green</option>
@@ -33,16 +47,20 @@ Wellcome to jsWorld!
     </select>
 
     X: <select id='x1Select'>
-    <option value=4 select>4</option>
+    <option value=4 selected>4</option>
     <option value=6>6</option>
     <option value=8>8</option>
     <option value=10>10</option>
     <option value=12>12</option>
     <option value=20>20</option>
     </select>
+
+
+    <input type="number" id="points" step="3">
 
     Y: <select id='y1Select'>
-    <option value=6 select>6</option>
+    <option value=4>4</option>
+    <option value=6 selected>6</option>
     <option value=6>6</option>
     <option value=8>8</option>
     <option value=10>10</option>
@@ -51,17 +69,20 @@ Wellcome to jsWorld!
     </select>
 
 
+    <input id='lengthResultButton' type='button' value='Length Result'/>
+    <input id='normalizeResultButton' type='button' value='Normalize Result'/>
+    <input id='perpResultButton' type='button' value='Perp Result'/>
+    <br>
+
     SCALE: <select id='scaleSelect'>
-    <option value=2 select>2</option>
+    <option value=2 selected>2</option>
     <option value=3>3</option>
     <option value=4>4</option>
     <option value=5>5</option>
     <option value=6>6</option>
-
     </select>
+
     <input id='scaleResultButton' type='button' value='Scale Result'/>
-    <input id='normalizeResultButton' type='button' value='Length Result'/>
-    <input id='perpResultButton' type='button' value='Perp Result'/>
 
     <h3>B</h3>
     Line color: <select id='Line2StyleSelect'>
@@ -79,7 +100,7 @@ Wellcome to jsWorld!
     <option value=4 >4</option>
     <option value=6>6</option>
     <option value=8>8</option>
-    <option value=10 select>10</option>
+    <option value=10 selected>10</option>
     <option value=12>12</option>
     <option value=20>20</option>
     </select>
@@ -87,7 +108,7 @@ Wellcome to jsWorld!
     Y: <select id='y2Select'>
     <option value=4 >4</option>
     <option value=6>6</option>
-    <option value=8 select>8</option>
+    <option value=8 selected>8</option>
     <option value=10>10</option>
     <option value=12>12</option>
     <option value=20>20</option>
@@ -100,6 +121,8 @@ Wellcome to jsWorld!
     <p>
 </div>
 
+
+
 <canvas id='canvas' width='600' height='600'>
     Canvas not supported
 </canvas>
@@ -107,6 +130,7 @@ Wellcome to jsWorld!
 
     var canvas = document.getElementById('canvas');
     var context = canvas.getContext('2d');
+
 
     var style1Select = document.getElementById('Line1StyleSelect');
     var x1Select = document.getElementById('x1Select')
@@ -122,6 +146,7 @@ Wellcome to jsWorld!
 
     var scaleSelect = document.getElementById('scaleSelect');
     var scaleResultButton = document.getElementById('scaleResultButton');
+    var lengthResultButton = document.getElementById('lengthResultButton');
     var normalizeResultButton = document.getElementById('normalizeResultButton');
     var perpResultButton = document.getElementById('perpResultButton');
 
@@ -129,6 +154,11 @@ Wellcome to jsWorld!
     var helfVal = context.canvas.width /2;
 
     var GAP = 10;
+
+
+    x1Select.change = function (){
+        console.log(x1Select.value)
+    }
 
 
     function drawGrid(color, stepx, stepy) {
@@ -247,9 +277,21 @@ Wellcome to jsWorld!
 
 
         drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
-        drawLine(new Point(v1.x,v1.y), new Point(scalev.x,scalev.y), style2Select.value)
+        drawLine(new Point(0,0), new Point(scalev.x,scalev.y), style2Select.value)
 
         var resultStr = "Vector2d x : "+scalev.x+ "   y : "+scalev.y
+        drawResult(resultStr)
+    }
+
+    function lengthVal(){
+
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var myLength = v1.length();
+
+
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+
+        var resultStr = "length Val  : "+myLength;
         drawResult(resultStr)
     }
 
@@ -260,17 +302,45 @@ Wellcome to jsWorld!
 
 
         drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
-        drawLine(new Point(v1.x,v1.y), new Point(scalev.x,scalev.y), style2Select.value)
+        drawLine(new Point(0,0), new Point(normalizev.x,normalizev.y), style2Select.value)
 
-        var resultStr = "Vector2d x : "+scalev.x+ "   y : "+scalev.y
+        var resultStr = "Vector2d x : "+normalizev.x+ "   y : "+normalizev.y
+        drawResult(resultStr)
+    }
+
+    function perpVector(){
+
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var perpv = v1.perp();
+
+
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+        drawLine(new Point(0,0), new Point(perpv.x,perpv.y), style2Select.value)
+
+        var resultStr = "Vector2d x : "+perpv.x+ "   y : "+perpv.y
+        drawResult(resultStr)
+    }
+
+    function dotVal(){
+
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var v2 = new Vector2d(x2Select.value, y2Select.value);
+        var dotval = v1.dot(v2);
+        console.log("aaaa : ", dotval);
+
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+        drawLine(new Point(0,0), new Point(v2.x,v2.y), style2Select.value)
+
+
+        var resultStr = "Dot Val : "+dotval;
         drawResult(resultStr)
     }
 
 
-    function drawResult(str)
-    {
+
+    function drawResult(str){
         context.fillStyle ="gray";
-        context.fillRect(0,0,300,20);
+        context.fillRect(0,0,600,20);
 
         context.font = "14px Palatino";
         context.fillStyle = "yellow";
@@ -279,8 +349,8 @@ Wellcome to jsWorld!
         context.fillText(str , 10,15);
     }
 
-    function drawLine(sp, ep, style)
-    {
+    function drawLine(sp, ep, style){
+
         context.save();
         context.beginPath();
         context.strokeStyle = style;
@@ -312,13 +382,18 @@ Wellcome to jsWorld!
     dotResultButton.onclick = function (e) {
         context.clearRect(0, 0, canvas.width, canvas.height);
         drawGrid('lightgray', 10, 10);
-        addVector();
+        dotVal();
     };
 
     scaleResultButton.onclick = function (e) {
         context.clearRect(0, 0, canvas.width, canvas.height);
         drawGrid('lightgray', 10, 10);
         scaleVector();
+    };
+    lengthResultButton.onclick = function (e) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid('lightgray', 10, 10);
+        lengthVal();
     };
 
     normalizeResultButton.onclick = function (e) {
@@ -330,7 +405,7 @@ Wellcome to jsWorld!
     perpResultButton.onclick = function (e) {
         context.clearRect(0, 0, canvas.width, canvas.height);
         drawGrid('lightgray', 10, 10);
-        addVector();
+        perpVector();
     };
 
     console.log("bbb")

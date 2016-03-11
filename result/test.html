@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+</head>
+<body>
+
+
+
+<div style="width: 200px">
+            <label for="switch">Flip Toggle Switch:</label>
+            <input type="checkbox" data-role="flipswitch" name="switch" id="switch">
+            <br>
+            <input type="submit" data-inline="true" value="Submit">
+            <input type="range" name="points" id="points" value="50" min="0" max="100" data-show-value="true" onchange="pointchange();">
+
+</div>
+
+<script>
+    /*
+    var points = document.getElementById("points");
+    console.log("points", points);
+    function pointchange(){
+        console.log("aaaaa");
+    }
+    */
+    function pointchange(){
+        var len = document.links.length;
+        //console.log("len : ", len);
+        for (var i = 0 ; i<len ; i++){
+            console.log(i, document.links[i], document.links[i].innerText);
+            //console.log(i, document.links[i].role == "slider");
+            //console.log(i, document.links[i].title);
+        }
+    }
+
+
+
+</script>
+
+</body>
+</html>
