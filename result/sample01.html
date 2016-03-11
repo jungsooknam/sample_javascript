@@ -120,6 +120,11 @@ Wellcome to jsWorld!
     var subResultButton = document.getElementById('subResultButton');
     var dotResultButton = document.getElementById('dotResultButton');
 
+    var scaleSelect = document.getElementById('scaleSelect');
+    var scaleResultButton = document.getElementById('scaleResultButton');
+    var normalizeResultButton = document.getElementById('normalizeResultButton');
+    var perpResultButton = document.getElementById('perpResultButton');
+
 
     var helfVal = context.canvas.width /2;
 
@@ -226,12 +231,38 @@ Wellcome to jsWorld!
 
         var v1 = new Vector2d(x1Select.value, y1Select.value);
         var v2 = new Vector2d(x2Select.value, y2Select.value);
-        var addv = v1.sub(v2);
+        var subv = v1.sub(v2);
 
         drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
-        drawLine(new Point(v1.x,v1.y), new Point(addv.x,addv.y), style2Select.value)
+        drawLine(new Point(v1.x,v1.y), new Point(subv.x,subv.y), style2Select.value)
 
-        var resultStr = "Vector2d x : "+addv.x+ "   y : "+addv.y
+        var resultStr = "Vector2d x : "+subv.x+ "   y : "+subv.y
+        drawResult(resultStr)
+    }
+
+    function scaleVector(){
+
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var scalev = v1.scale(scaleSelect.value);
+
+
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+        drawLine(new Point(v1.x,v1.y), new Point(scalev.x,scalev.y), style2Select.value)
+
+        var resultStr = "Vector2d x : "+scalev.x+ "   y : "+scalev.y
+        drawResult(resultStr)
+    }
+
+    function normalizeVector(){
+
+        var v1 = new Vector2d(x1Select.value, y1Select.value);
+        var normalizev = v1.normalize();
+
+
+        drawLine(new Point(0,0), new Point(v1.x,v1.y), style1Select.value)
+        drawLine(new Point(v1.x,v1.y), new Point(scalev.x,scalev.y), style2Select.value)
+
+        var resultStr = "Vector2d x : "+scalev.x+ "   y : "+scalev.y
         drawResult(resultStr)
     }
 
@@ -279,6 +310,24 @@ Wellcome to jsWorld!
     };
 
     dotResultButton.onclick = function (e) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid('lightgray', 10, 10);
+        addVector();
+    };
+
+    scaleResultButton.onclick = function (e) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid('lightgray', 10, 10);
+        scaleVector();
+    };
+
+    normalizeResultButton.onclick = function (e) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid('lightgray', 10, 10);
+        normalizeVector();
+    };
+
+    perpResultButton.onclick = function (e) {
         context.clearRect(0, 0, canvas.width, canvas.height);
         drawGrid('lightgray', 10, 10);
         addVector();
