@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<canvas id='canvas' width='400' height='400' style="float:left">
+    Canvas not supported
+</canvas>
+
+<canvas id='hiddencanvas' width='400' height='400'>
+    Canvas not supported
+</canvas>
+
+<script>
+
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+
+    var hiddencanvas = document.getElementById('hiddencanvas');
+    var hiddencontext = hiddencanvas.getContext('2d');
+
+    var image1 = new Image();
+    var image2 = new Image();
+
+
+    image2.src = 'img/2.jpg';
+    var flag = 0;
+
+    image2.onload = function(e){
+        context.drawImage(image2, 0, 0, 746, 1020, 0, 0, 400, 1020*400 /746);
+        console.log("1");
+        console.log(image1.complete);
+        flag++;
+        //if(flag > 1) reDraw()
+    }
+
+    image1.src = 'img/1.jpg';
+
+    image1.onload = function(e){
+        console.log("2")
+
+        hiddencontext.translate(400, 0);
+        hiddencontext.scale(-1, 1);
+
+        hiddencontext.drawImage(image1, 0, 0, 746, 1020, 0, 0, 400, 1020*400/746);
+
+        console.log(image2.complete);
+        flag++;
+        //if(flag > 1) reDraw()
+    }
+
+    function reDraw(yy, xx){
+
+        context.save();
+
+        context.beginPath();
+        context.strokeStyle = 'red';
+        context.lineWidth = 3;
+        context.moveTo(0,0);
+        context.lineTo(xx,0);
+        context.lineTo(0,yy);
+        context.stroke();
+        context.clip();
+        context.drawImage(hiddencanvas, 0, 0, xx, yy, 0, 0, xx, yy);
+
+        context.restore();
+    }
+    function windowToCanvas(x, y) {
+        var bbox = canvas.getBoundingClientRect();
+        return { x : x - bbox.left, y : y - bbox.top }
+    }
+
+    function drawLine(xx, yy){
+        context.save();
+        context.beginPath();
+        context.strokeStyle = "green";
+        context.lineWidth = 1;
+        context.lineCap = "round";
+        context.moveTo(0, 0);
+        context.lineTo(xx, yy);
+        context.stroke();
+
+        context.restore();
+    }
+
+    function drawAngle(v){
+        var len = v.length()/2;
+        var subv = v.normalize().scale(len);
+        //
+        context.save();
+        context.beginPath();
+        //context.setLineDash([3]);
+        context.strokeStyle = "red";
+        context.lineWidth = 1;
+
+        var angle = Math.atan2(v.y, v.x);
+
+        var result = len / Math.cos(angle) ;
+        var result2 = len / (Math.cos(Math.PI/2-angle))
+
+        //console.log(90 - angle/Math.PI*180, result2);
+        context.arc(0, 0, 20, 0, angle);
+
+        context.moveTo(result, 0);
+        context.lineTo(0, result2);
+
+        context.stroke();
+        context.restore();
+    }
+
+    function Vector2d(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    Vector2d.prototype = {
+        add : function (vec) {
+            return new Vector2d(this.x + vec.x, this.y + vec.y);
+        },
+
+        sub : function (vec) {
+            return new Vector2d(this.x - vec.x, this.y - vec.y);
+        },
+
+        scale : function (scale) {
+            return new Vector2d(this.x * scale, this.y * scale);
+        },
+
+        length : function () {
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        },
+
+        normalize : function () {
+            var len = this.length();
+
+            return new Vector2d(this.x / len, this.y / len);
+        },
+
+        perp : function (cw) {
+            if(cw)
+                return new Vector2d(-this.y , this.x);
+            else return new Vector2d( this.y, -this.x);
+        },
+
+        dot : function (vec) {
+            return this.x * vec.x + this.y * vec.y;
+        }
+    };
+
+    canvas.onmousemove = function(e) {
+
+        var loc = windowToCanvas(e.clientX, e.clientY);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        //drawGrid('lightgray', 10, 10);
+        context.drawImage(image2, 0, 0, 746, 1020, 0, 0, 400, 1020*400 /746);
+
+        drawLine(loc.x, loc.y);
+        var v = new Vector2d(loc.x, loc.y);
+
+        reDraw(v.x, v.y);
+
+        drawAngle(v);
+    };
+
+</script>
+
+
+</body>
+</html>

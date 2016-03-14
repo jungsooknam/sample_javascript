@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #canvas {
+            background: #ffffff;
+            cursor: pointer;
+            margin-left: 10px;
+            margin-top: 10px;
+            -webkit-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            -moz-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+        };
+
+    </style>
+
+
+
+</head>
+<body>
+
+
+
+<canvas id='canvas' width='600' height='600'>
+    Canvas not supported
+</canvas>
+
+<script>
+
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+
+    function drawGrid(color, stepx, stepy) {
+        context.save();
+
+        context.strokeStyle = color;
+        context.fillStyle = '#ffffff';
+        context.lineWidth = 0.5;
+        context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+
+        for (var i = stepx + 0.5; i < context.canvas.width; i += stepx) {
+            context.beginPath();
+            context.moveTo(i, 0);
+            context.lineTo(i, context.canvas.height);
+            context.stroke();
+        }
+
+        for (var i = stepy + 0.5; i < context.canvas.height; i += stepy) {
+            context.beginPath();
+            context.moveTo(0, i);
+            context.lineTo(context.canvas.width, i);
+            context.stroke();
+        }
+        context.restore();
+    }
+
+    function windowToCanvas(x, y) {
+        var bbox = canvas.getBoundingClientRect();
+        return { x : x - bbox.left, y : y - bbox.top }
+    }
+
+    function Vector2d(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    Vector2d.prototype = {
+        add : function (vec) {
+            return new Vector2d(this.x + vec.x, this.y + vec.y);
+        },
+
+        sub : function (vec) {
+            return new Vector2d(this.x - vec.x, this.y - vec.y);
+        },
+
+        scale : function (scale) {
+            return new Vector2d(this.x * scale, this.y * scale);
+        },
+
+        length : function () {
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        },
+
+        normalize : function () {
+            var len = this.length();
+
+            return new Vector2d(this.x / len, this.y / len);
+        },
+
+        perp : function (cw) {
+            if(cw)
+                return new Vector2d(-this.y , this.x);
+            else return new Vector2d( this.y, -this.x);
+        },
+
+        dot : function (vec) {
+            return this.x * vec.x + this.y * vec.y;
+        }
+    };
+
+
+    function drawAngle(v){
+        var len = v.length()/2;
+        var subv = v.normalize().scale(len);
+
+        var angle = Math.atan2(v.y, v.x);
+
+        var result = len / Math.cos(angle) ;
+        var result2 = len / (Math.cos(Math.PI/2-angle))
+
+        context.save();
+
+        context.beginPath();
+        context.fillStyle = "blue";
+        context.moveTo(0, 0);
+        context.lineTo(0, result2);
+        context.lineTo(result, 0);
+        context.fill();
+
+        context.beginPath();
+        context.fillStyle = "pink";
+        context.moveTo(loc.x, loc.y);
+        context.lineTo(0, result2);
+        context.lineTo(result, 0);
+        context.fill();
+
+        context.restore();
+    }
+
+    var loc;
+
+    canvas.onmousemove = function(e) {
+        loc = windowToCanvas(e.clientX, e.clientY);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid('lightgray', 10, 10);
+        var v = new Vector2d(loc.x, loc.y);
+        drawAngle(v);
+    };
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    drawGrid('lightgray', 10, 10);
+
+</script>
+
+</body>
+</html>

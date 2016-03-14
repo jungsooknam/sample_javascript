@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #canvas {
+            background: #ffffff;
+            cursor: pointer;
+            margin-left: 10px;
+            margin-top: 10px;
+            -webkit-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            -moz-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+        };
+
+    </style>
+
+</head>
+<body>
+
+
+<canvas id='canvas' width='1200' height='600'>
+    Canvas not supported
+</canvas>
+
+<canvas id='nextcanvas' width='600' height='600' style="visibility: hidden">
+    Canvas not supported
+</canvas>
+<canvas id='prevcanvas' width='600' height='600' style="visibility: hidden">
+    Canvas not supported
+</canvas>
+
+<script>
+
+
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+
+    var prevcanvas = document.getElementById('prevcanvas');
+    var prevcontext = prevcanvas.getContext('2d');
+
+    var nextcanvas = document.getElementById('nextcanvas');
+    var nextcontext = nextcanvas.getContext('2d');
+
+
+
+    function windowToCanvas(x, y) {
+        var bbox = canvas.getBoundingClientRect();
+        return { x : x - bbox.left, y : y - bbox.top }
+    }
+
+    function Vector2d(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    Vector2d.prototype = {
+        add : function (vec) {
+            return new Vector2d(this.x + vec.x, this.y + vec.y);
+        },
+
+        sub : function (vec) {
+            return new Vector2d(this.x - vec.x, this.y - vec.y);
+        },
+
+        scale : function (scale) {
+            return new Vector2d(this.x * scale, this.y * scale);
+        },
+
+        length : function () {
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        },
+
+        normalize : function () {
+            var len = this.length();
+
+            return new Vector2d(this.x / len, this.y / len);
+        },
+
+        perp : function (cw) {
+            if(cw)
+                return new Vector2d(-this.y , this.x);
+            else return new Vector2d( this.y, -this.x);
+        },
+
+        dot : function (vec) {
+            return this.x * vec.x + this.y * vec.y;
+        }
+    };
+
+
+    function drawAngle(v){
+
+        var len = v.length()/2;
+        var subv = v.normalize().scale(len);
+
+        var angle = Math.atan2(v.y, v.x);
+
+        var result = len / Math.cos(angle) ;
+        var result2 = len / (Math.cos(Math.PI/2-angle));
+
+        var changv = new Vector2d( result - loc.x  ,loc.y);
+        var angle2 = Math.atan2(changv.y, changv.x);
+
+        //console.log(parseInt(180-(angle2 / Math.PI * 180)), angle2);
+
+        context.save();
+
+        context.strokeStyle = "red";
+        context.translate(loc.x, loc.y);
+        context.scale(-1, 1);
+
+        context.rotate( -(Math.PI - angle2));
+
+        context.beginPath();
+        context.fillStyle = 'pink'
+        context.moveTo(0, 0);
+        context.lineTo(0, result2);
+        context.lineTo(result, 0);
+        context.clip();
+        context.drawImage(nextcanvas, 0, 0, result, result2, 0, 0, result, result2);
+
+        context.restore();
+
+        // 이전 이미지. 넣음.
+
+        context.save();
+        context.beginPath();
+        context.fillStyle = 'skyblue'
+        context.moveTo(0, 0);
+        context.lineTo(0, result2);
+        context.lineTo(result, 0);
+        context.clip();
+        context.drawImage(prevcanvas, 0, 0, result, result2, 0, 0, result, result2);
+
+        context.restore();
+    }
+
+    var loc;
+
+    canvas.onmousemove = function(e) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(nowimage, 0, 0, nowimage.width, nowimage.height, 0, 0, prevcanvas.width, nowimage.height*prevcanvas.width /nowimage.width);
+        context.drawImage(now2image, 0, 0, now2image.width, now2image.height, 600, 0, prevcanvas.width, now2image.height*prevcanvas.width /now2image.width);
+
+        loc = windowToCanvas(e.clientX, e.clientY);
+        var v = new Vector2d(loc.x, loc.y);
+        drawAngle(v);
+    };
+
+    var previmage = new Image();
+    previmage.src = 'img/1.jpg';
+
+    var nowimage = new Image();
+    nowimage.src = 'img/3.jpg';
+
+    var now2image = new Image();
+    now2image.src = 'img/4.jpg';
+
+    var nexrtimage = new Image();
+    nexrtimage.src = 'img/2.jpg';
+
+    nowimage.onload = function(e){
+        context.drawImage(nowimage, 0, 0, nowimage.width, nowimage.height, 0, 0, prevcanvas.width, nowimage.height*prevcanvas.width /nowimage.width);
+    }
+
+    now2image.onload = function(e){
+        context.drawImage(now2image, 0, 0, now2image.width, now2image.height, 600, 0, prevcanvas.width, now2image.height*prevcanvas.width /now2image.width);
+    }
+
+    previmage.onload = function(e){
+        prevcontext.drawImage(previmage, 0, 0, previmage.width, previmage.height, 0, 0, prevcanvas.width, previmage.height*prevcanvas.width /previmage.width);
+    }
+
+    nexrtimage.onload = function(e){
+        nextcontext.translate(600, 0);
+        nextcontext.scale(-1, 1);
+        nextcontext.drawImage(nexrtimage, 0, 0, nexrtimage.width, nexrtimage.height, 0, 0, nextcanvas.width, nexrtimage.height*nextcanvas.width /nexrtimage.width);
+    }
+
+</script>
+
+</body>
+</html>

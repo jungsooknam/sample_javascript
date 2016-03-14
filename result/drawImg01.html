@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<canvas id='canvas' width='400' height='400' style="float:left">
+    Canvas not supported
+</canvas>
+
+<canvas id='hiddencanvas' width='400' height='400'>
+    Canvas not supported
+</canvas>
+
+<script>
+
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+
+    var hiddencanvas = document.getElementById('hiddencanvas');
+    var hiddencontext = hiddencanvas.getContext('2d');
+
+    var image1 = new Image();
+    var image2 = new Image();
+
+
+    image2.src = 'img/2.jpg';
+    var flag = 0;
+
+    image2.onload = function(e){
+        context.drawImage(image2, 0, 0, 746, 1020, 0, 0, 400, 1020*400 /746);
+        console.log("1");
+        console.log(image1.complete);
+        flag++;
+        if(flag > 1) reDraw()
+    }
+
+    image1.src = 'img/1.jpg';
+
+    image1.onload = function(e){
+        console.log("2")
+        angle = 45 * Math.PI / 180;
+        //hiddencontext.rotate(angle);
+        hiddencontext.drawImage(image1, 0, 0, 746, 1020, 0, 0, 400, 1020*400/746);
+
+        console.log(image2.complete);
+        flag++;
+        if(flag > 1) reDraw()
+    }
+
+    function reDraw(){
+        var a = 200;
+        context.beginPath();
+        context.strokeStyle = 'red';
+        context.lineWidth = 3;
+        context.moveTo(0,0);
+        context.lineTo(a,0);
+        context.lineTo(0,a);
+        context.stroke();
+        context.clip();
+        context.drawImage(hiddencanvas, 0, 0, a, a, 0, 0, a, a);
+    }
+
+</script>
+
+
+</body>
+</html>

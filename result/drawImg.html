@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<canvas id='canvas' width='400' height='400' style="float:left">
+    Canvas not supported
+</canvas>
+
+<canvas id='hiddencanvas' width='400' height='400'>
+    Canvas not supported
+</canvas>
+
+<script>
+
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+
+    var hiddencanvas = document.getElementById('hiddencanvas');
+    var hiddencontext = hiddencanvas.getContext('2d');
+
+    var image1 = new Image();
+    var image2 = new Image();
+
+
+    image2.src = 'img/2.jpg';
+    var flag = 0;
+
+    image2.onload = function(e){
+        context.drawImage(image2, 0, 0);
+        console.log("1");
+        console.log(image1.complete);
+        flag++;
+        if(flag > 1) reDraw()
+    }
+
+    image1.src = 'img/1.jpg';
+
+    image1.onload = function(e){
+        console.log("2")
+        hiddencontext.drawImage(image1, 0, 0);
+        console.log(image2.complete);
+        flag++;
+        if(flag > 1) reDraw()
+    }
+
+    function reDraw(){
+        context.drawImage(hiddencanvas, 0, 0, 200, 200, 0, 0, 200, 200);
+    }
+
+</script>
+
+
+</body>
+</html>
