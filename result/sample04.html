@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #canvas {
+            background: #ffffff;
+            cursor: pointer;
+            margin-left: 10px;
+            margin-top: 10px;
+            -webkit-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            -moz-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+        };
+
+    </style>
+
+
+
+</head>
+<body>
+
+
+
+<canvas id='canvas' width='600' height='600'>
+    Canvas not supported
+</canvas>
+
+<script>
+
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+    function drawGrid(color, stepx, stepy) {
+
+
+        context.save();
+
+        context.strokeStyle = color;
+        context.fillStyle = '#ffffff';
+        context.lineWidth = 0.5;
+        context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+
+        for (var i = stepx + 0.5; i < context.canvas.width; i += stepx) {
+            context.beginPath();
+            context.moveTo(i, 0);
+            context.lineTo(i, context.canvas.height);
+            context.stroke();
+        }
+
+        for (var i = stepy + 0.5; i < context.canvas.height; i += stepy) {
+            context.beginPath();
+            context.moveTo(0, i);
+            context.lineTo(context.canvas.width, i);
+            context.stroke();
+        }
+
+    }
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+
+    function Ball() {
+        this.x = 0;
+        this.y = 0;
+
+        this.radius = 10;
+        this.color = "red";
+        this.angle = 0;
+    }
+
+    Ball.prototype = {
+        draw : function() {
+            context.save();
+
+            context.beginPath();
+
+            context.translate(this.x, this.y);
+            //context.rotate(this.angle);
+            context.arc(0, 0, this.radius, 0, Math.PI * 2);
+//            context.fillRect(-30, -5, 30, 10);
+            context.fillStyle = this.color;
+            context.fill();
+
+            context.restore();
+        }
+    }
+
+    var ball = new Ball();
+
+    function windowToCanvas(x, y) {
+        var bbox = canvas.getBoundingClientRect();
+
+        return { x : x - bbox.left, y : y - bbox.top }
+    }
+
+    var p1 = {x:100, y:150};
+    var p2 = {x: 400, y:500}
+
+    function drawLine(){
+        context.save();
+        context.beginPath();
+        context.strokeStyle = "green";
+        context.lineWidth = 5;
+        context.lineCap = "round";
+        context.moveTo(p1.x, p1.y);
+        context.lineTo(p2.x, p2.y);
+        context.stroke();
+
+        context.restore();
+    }
+
+
+    function Vector2d(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    Vector2d.prototype = {
+        add : function (vec) {
+            return new Vector2d(this.x + vec.x, this.y + vec.y);
+        },
+
+        sub : function (vec) {
+            return new Vector2d(this.x - vec.x, this.y - vec.y);
+        },
+
+        scale : function (scale) {
+            return new Vector2d(this.x * scale, this.y * scale);
+        },
+
+        length : function () {
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        },
+
+        normalize : function () {
+            var len = this.length();
+
+            return new Vector2d(this.x / len, this.y / len);
+        },
+
+        perp : function (cw) {
+            if(cw)
+                return new Vector2d(-this.y , this.x);
+            else return new Vector2d( this.y, -this.x);
+        },
+
+        dot : function (vec) {
+            return this.x * vec.x + this.y * vec.y;
+        }
+    };
+
+
+    function drawAngle(xx, yy){
+
+        context.save();
+        context.beginPath();
+        context.strokeStyle = "gray";
+        context.lineWidth = 1;
+        context.setLineDash([3])
+        context.moveTo(p1.x, p1.y);
+        context.lineTo(xx, yy);
+        context.stroke();
+
+        context.moveTo(p2.x, p2.y);
+        context.lineTo(xx, yy);
+        context.stroke();
+
+        var v1 = new Vector2d(p2.x - p1.x, p2.y - p1.y);
+        var v2 = new Vector2d(xx - p1.x, yy- p1.y);
+        var rv = v1.add(v2);
+
+        context.moveTo(0, 0);
+        context.lineTo(rv.x, rv.y);
+        context.stroke();
+
+        context.restore();
+    }
+
+
+    canvas.onmousemove = function(e) {
+
+        var loc = windowToCanvas(e.clientX, e.clientY);
+
+        //var dx = loc.x - startX;
+        //var dy = loc.y - startY;
+
+        //var m = new Vector2d(dx, dy);
+
+        //m = m.normalize().scale(speed);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        //drawGrid('lightgray', 10, 10);
+        drawLine();
+        ball.x = loc.x;
+        ball.y = loc.y;
+        drawAngle(loc.x, loc.y)
+        ball.draw();
+        //v.x = m.x;
+        //v.y = m.y;
+    };
+
+
+    drawGrid('lightgray', 10, 10);
+
+</script>
+
+</body>
+</html>
