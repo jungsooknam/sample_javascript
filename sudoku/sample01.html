@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+
+        #canvas {
+            background: #ffffff;
+            cursor: pointer;
+            margin-left: 10px;
+            margin-top: 10px;
+            -webkit-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            -moz-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+<canvas id='canvas' width='540' height='540'>
+    Canvas not supported
+</canvas>
+
+
+<script>
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+
+    function drawGrid(color, stepx, stepy) {
+        context.save()
+
+        context.strokeStyle = color;
+        context.fillStyle = '#ffffff';
+        context.lineWidth = 0.5;
+        context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+
+        for (var i = stepx + 0.5; i < context.canvas.width; i += stepx) {
+            context.beginPath();
+            context.moveTo(i, 0);
+            context.lineTo(i, context.canvas.height);
+            context.stroke();
+        }
+
+        for (var i = stepy + 0.5; i < context.canvas.height; i += stepy) {
+            context.beginPath();
+            context.moveTo(0, i);
+            context.lineTo(context.canvas.width, i);
+            context.stroke();
+        }
+
+        context.strokeStyle = '#000000';
+        context.lineWidth = 1;
+
+        var helfVal = context.canvas.width /3;
+        context.beginPath();
+        context.moveTo(0, helfVal);
+        context.lineTo(context.canvas.width, helfVal);
+        context.stroke();
+
+
+        context.beginPath();
+        context.moveTo(helfVal, 0);
+        context.lineTo(helfVal, context.canvas.height);
+        context.stroke();
+
+
+        helfVal += helfVal
+        context.beginPath();
+        context.moveTo(0, helfVal);
+        context.lineTo(context.canvas.width, helfVal);
+        context.stroke();
+
+
+        context.beginPath();
+        context.moveTo(helfVal, 0);
+        context.lineTo(helfVal, context.canvas.height);
+        context.stroke();
+        context.restore();
+    }
+
+    var lavel1 = [
+        [0,5,0,0,1,2,0,0,0],
+        [3,9,0,0,0,0,0,5,0],
+        [7,0,0,0,0,0,6,0,0],
+        [0,0,5,0,0,0,0,3,4],
+        [0,0,0,0,5,8,0,2,0],
+        [0,0,3,0,0,0,0,7,8],
+        [6,0,0,0,0,0,8,0,0],
+        [5,4,0,0,0,0,0,9,0],
+        [0,2,0,0,9,7,0,0,0]
+    ];
+
+    var gap = 60;
+
+    var result = [];//= lavel1.slice(0);
+
+    function drawNumbers(){
+
+        context.font = '40px palation';
+        context.save();
+
+        var len =lavel1.length;
+        for (var i = 0; i< len; i++){
+            var sublen = lavel1[i].length;
+            result.push(lavel1[i].slice(0));
+
+            for(var j= 0 ; j<sublen ; j++ ) {
+                if (lavel1[i][j] != 0) {
+                    ``
+                    context.fillStyle = '#efefef';
+                    context.fillRect((j * gap) + 2, (i * gap) + 2, gap-3, gap-3);
+
+                    context.fillStyle = '#000000';
+                    drawNumber(lavel1[i][j], j, i);
+                }
+            }
+        }
+        context.restore();
+    }
+
+    function drawNumber(val, j , i){
+
+        var xx = 18;
+        var yy = 45;
+        context.fillText(val, xx + (j * gap), yy + (i * gap));
+    }
+
+
+    drawGrid('lightgray', gap, gap);
+    drawNumbers();
+
+
+
+    function windowToCanvas(x, y) {
+        var bbox = canvas.getBoundingClientRect();
+        return { x : x - bbox.left, y : y - bbox.top }
+    }
+
+
+    function Point(xx, yy){
+        this.x = xx;
+        this.y = yy;
+    }
+
+    Point.prototype = {
+        changeIndex: function () {
+            this.x = parseInt(this.x / gap);
+            this.y = parseInt(this.y / gap);
+            return this;
+        },
+
+        changePosition: function () {
+            this.x = gap * this.x;
+            this.y = gap * this.y;
+            return this;
+        },
+
+        isEqual: function (target) {
+            if (this.x == target.x && this.y == target.y) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+
+        isValid: function () {
+            if (this.x == -1 || this.y == -1) {
+                return false
+            } else {
+                return true;
+            }
+        },
+
+        setNull: function () {
+            this.x = -1;
+            this.y = -1;
+        },
+
+
+        clone: function () {
+            return new Point(this.x, this.y);
+        },
+
+        sub: function (point) {
+            return new Point(this.x - point.x , this.y- point.y);
+        },
+
+        getSmallNumber : function (){
+            var xx = parseInt(this.x / 20);
+            var yy = parseInt(this.y / 20);
+            return yy * 3 + xx +1;
+        }
+    }
+
+    function positionToNum(xx, yy) {
+        xx = parseInt(xx / gap);
+        yy = parseInt(yy / gap);
+        return new Point(xx, yy);
+    }
+
+    function numToPosition(xx, yy) {
+        xx = gap * xx;
+        yy = gap * yy;
+        return new Point(xx, yy);
+    }
+
+
+
+    canvas.onmousedown = function(e) {
+
+        var loc = windowToCanvas(e.clientX, e.clientY);
+
+        var point = new Point(loc.x, loc.y).changeIndex();
+
+        if(selectIndex.isEqual(point)){
+            selectNum(new Point(loc.x, loc.y));
+            selectIndex.setNull();
+            return;
+        }
+
+        if ( selectIndex.isValid() ) {
+
+            clenIndex(selectIndex.clone());
+
+            if(result[selectIndex.y][selectIndex.x] != 0) {
+                // 다시 체워 줘야 합니다.
+                checkAndDrawNum(result[selectIndex.y][selectIndex.x], selectIndex.x, selectIndex.y);
+            }
+        }
+
+        if(lavel1[point.y][point.x] == 0) {
+            //그려주세욤...
+            if(result[point.y][point.x] != 0) {
+                clenIndex(point.clone());
+            }
+
+            drawSubGrid(point.x, point.y);
+            selectIndex = point.clone();
+
+        }else{
+            selectIndex.setNull();
+        }
+
+    };
+
+    function clenIndex(point){
+
+        point.changePosition();
+
+        context.save();
+        context.translate(point.x, point.y);
+        context.clearRect(0+1, 0+1, gap-2, gap-2);
+        context.restore();
+    }
+
+    function selectNum(point){
+
+        var realPoint = point.clone();
+
+        point.changeIndex();
+        var i = point.x;
+        var j = point.y;
+        point.changePosition();
+
+        var nn = realPoint.sub(point).getSmallNumber();
+        clenIndex(selectIndex.clone());
+        result[j][i] = nn;
+        checkAndDrawNum(nn, i, j);
+    }
+
+    function checkAndDrawNum(nn, i, j) {
+
+        var check = checkSudoku(nn, i, j);
+        if (check) {
+            context.fillStyle = '#000000';
+            drawNumber(nn, i, j);
+        }else{
+            context.fillStyle = '#FF0000';
+            drawNumber(nn, i, j);
+        }
+    }
+
+    function checkSudoku(nn, xx, yy){
+
+        var len = result[yy].length;
+        var i;
+
+        // 가로 체크.
+
+        for (i = 0 ; i<len ;i++){
+            if(xx != i && result[yy][i] == nn){
+                return false;
+            }
+        }
+
+        // 세로 체크.
+        for (i = 0 ; i<len ;i++){
+
+            if(yy != i && result[i][xx] == nn){
+                return false;
+            }
+        }
+
+        // 3 X 3 박스 안 체크.
+        // (0,0),(0,1),(0,2)
+        // (1,0),(1,1),(1,2)
+        // (2,0),(2,1),(2,2)
+        len = 3;
+
+        var sx = parseInt(xx / len)* 3;
+        var sy = parseInt(yy / len)* 3;
+
+        for (i = sy ; i<len+sy ;i++){
+            for (var j = sx ; j<len+sx ;j++){
+                if( (j!=xx || i!=yy) && result[i][j] == nn){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    var selectIndex = new Point(-1, -1);
+
+    function drawSubGrid(xx, yy){
+        var helfVal = gap / 3;
+        xx = gap * xx;
+        yy = gap * yy;
+
+        context.save()
+        context.fillStyle = '#000000';
+        context.strokeStyle = '#000000';
+        context.lineWidth = 0.5;
+        context.translate(xx+1, yy+1);
+
+
+        context.beginPath();
+        context.moveTo(1, helfVal);
+        context.lineTo(gap-2, helfVal);
+        context.stroke();
+
+        context.beginPath();
+        context.moveTo(helfVal, 1);
+        context.lineTo(helfVal, gap-2);
+        context.stroke();
+
+        helfVal += helfVal
+        context.beginPath();
+        context.moveTo(1, helfVal);
+        context.lineTo(gap-2, helfVal);
+        context.stroke();
+
+        context.beginPath();
+        context.moveTo(helfVal, 1);
+        context.lineTo(helfVal, gap-2);
+        context.stroke();
+
+        context.font = '12px palation';
+        context.fillText(1, 7, 14);
+        context.fillText(2, 27, 14);
+        context.fillText(3, 47, 14);
+
+        context.fillText(4, 7, 34);
+        context.fillText(5, 27, 34);
+        context.fillText(6, 47, 34);
+
+        context.fillText(7, 7, 54);
+        context.fillText(8, 27, 54);
+        context.fillText(9, 47, 54);
+
+
+        /*var len =lavel1.length;
+        for (var i = 0; i< len; i++){
+            var sublen = lavel1[i].length;
+            for(var j= 0 ; j<sublen ; j++ ) {
+                if (lavel1[i][j] != 0) {
+
+
+                    context.fillText(lavel1[i][j], xx + (j * gap), yy + (i * gap));
+                }
+
+            }
+        }*/
+
+
+
+        context.restore();
+
+
+
+    }
+
+</script>
+
+
+</body>
+</html>
